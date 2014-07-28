@@ -1,3 +1,5 @@
+_loopidx = 0
+
 def asm_loadval(val):
     """Assembler code to load val into accumulator"""
     return '\t\tlda #%d\n' % val	# 2 bytes, 2 cycles
@@ -17,16 +19,19 @@ def asm_setpix_len_abs(off, len):
 
 def asm_setpix_len_idx_ff(off):
     """Assembler code to set 255 bytess using index/loop"""
+    global _loopidx
     res = '''
 		ldy #$00
 .loop%d		sta bmpram+%d, y
 		iny
 		bne .loop%d
-    ''' % (off, off, off)
+    ''' % (_loopidx, off, _loopidx)
+    _loopidx += 1
     return res
 
 def asm_setpix_len_idx(off, len):
     """Assembler code to set len bytes using index/loop (up to 254 bytes)"""
+    global _loopidx
     res = ''
 
     # Can't optimize for offset 0, write it using absolute addressing
@@ -42,7 +47,8 @@ def asm_setpix_len_idx(off, len):
 .loop%d		sta bmpram+%d, y	; 3 bytes, 5 cycles
 		dey			; 1 byte,  1 cycle
 		bne .loop%d		; 2 bytes, 3 cycles (taken, same page)
-    ''' % (len, off, off - 1, off)
+    ''' % (len, _loopidx, off - 1, _loopidx)
+    _loopidx += 1
     return res
 
 def asm_rle_frame(slre):

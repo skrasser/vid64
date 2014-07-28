@@ -16,8 +16,8 @@
 ; * = $4000
 ; !source "build_asm/frame_init.asm"
 * = $2000
+
 !source "build/gen/frame_init.asm"
-dummy
-!source "foo2.asm"
-rts
-dummy2
+dummy_start_deltas
+!source "build/gen/frames_delta.asm"
+dummy_end_deltas		; this way we get the end address in the labels file
